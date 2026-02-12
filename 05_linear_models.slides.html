@@ -8680,6 +8680,7 @@ $$</li>
 <li>Second Stage: Run single linear regression of $r_y$ on $r_{x_k}$. The slope coefficent has the same value as $\hat{b}_k$</li>
 </ol>
 </li>
+<li>If you understand why this works, it will give you powerful intuition about how variables change model performance</li>
 </ul>
 </div>
 </div>
@@ -8689,11 +8690,206 @@ $$</li>
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [18]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="c1">## EXAMPLE</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LinearRegression</span>
+
+<span class="n">mse</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">y</span><span class="p">,</span><span class="n">y_hat</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">y_hat</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'./data/heart_failure_clinical_records_dataset.csv'</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+
+<span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'age'</span><span class="p">,</span> <span class="s1">'anaemia'</span><span class="p">,</span> <span class="s1">'creatinine_phosphokinase'</span><span class="p">,</span> <span class="s1">'diabetes'</span><span class="p">,</span>
+       <span class="s1">'ejection_fraction'</span><span class="p">,</span> <span class="s1">'high_blood_pressure'</span><span class="p">,</span> <span class="s1">'platelets'</span><span class="p">,</span>
+       <span class="s1">'serum_creatinine'</span><span class="p">,</span> <span class="s1">'serum_sodium'</span><span class="p">,</span> <span class="s1">'sex'</span><span class="p">,</span> <span class="s1">'smoking'</span><span class="p">,</span> <span class="s1">'DEATH_EVENT'</span><span class="p">,]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="nb">vars</span><span class="p">]</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'DEATH_EVENT'</span><span class="p">]</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">'DEATH_EVENT'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
+</div>
+</div>
+</div>
+</div>
+</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3839b199">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [19]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+<span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Mean squared error:</span><span class="si">{</span><span class="n">mse</span><span class="p">(</span><span class="n">y</span><span class="p">,</span><span class="n">y_hat</span><span class="p">)</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Model intercept: </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">intercept_</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">'variable'</span><span class="p">:</span><span class="n">model</span><span class="o">.</span><span class="n">feature_names_in_</span><span class="p">,</span> <span class="s1">'coefficient'</span><span class="p">:</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span> <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Mean squared error:0.16652179326656025
+Model intercept: 1.4978287986498122
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child jp-OutputArea-executeResult">
+<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[19]:</div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+<thead>
+<tr style="text-align: right;">
+<th></th>
+<th>variable</th>
+<th>coefficient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th>0</th>
+<td>age</td>
+<td>9.012270e-03</td>
+</tr>
+<tr>
+<th>1</th>
+<td>anaemia</td>
+<td>5.487855e-02</td>
+</tr>
+<tr>
+<th>2</th>
+<td>creatinine_phosphokinase</td>
+<td>4.880138e-05</td>
+</tr>
+<tr>
+<th>3</th>
+<td>diabetes</td>
+<td>1.663591e-02</td>
+</tr>
+<tr>
+<th>4</th>
+<td>ejection_fraction</td>
+<td>-1.059109e-02</td>
+</tr>
+<tr>
+<th>5</th>
+<td>high_blood_pressure</td>
+<td>6.795378e-02</td>
+</tr>
+<tr>
+<th>6</th>
+<td>platelets</td>
+<td>-7.210837e-08</td>
+</tr>
+<tr>
+<th>7</th>
+<td>serum_creatinine</td>
+<td>1.063219e-01</td>
+</tr>
+<tr>
+<th>8</th>
+<td>serum_sodium</td>
+<td>-1.096045e-02</td>
+</tr>
+<tr>
+<th>9</th>
+<td>sex</td>
+<td>-6.255923e-02</td>
+</tr>
+<tr>
+<th>10</th>
+<td>smoking</td>
+<td>1.340410e-02</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></section><section><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9859983a">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [20]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="nb">vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'age'</span><span class="p">,</span> <span class="s1">'anaemia'</span><span class="p">,</span> <span class="s1">'creatinine_phosphokinase'</span><span class="p">,</span> <span class="s1">'diabetes'</span><span class="p">,</span>
+    <span class="s1">'ejection_fraction'</span><span class="p">,</span> <span class="s1">'high_blood_pressure'</span><span class="p">,</span> <span class="s1">'platelets'</span><span class="p">,</span>
+    <span class="s1">'serum_creatinine'</span><span class="p">,</span> <span class="s1">'serum_sodium'</span><span class="p">,</span> <span class="s1">'sex'</span><span class="p">,</span> <span class="s1">'smoking'</span><span class="p">,</span> <span class="s1">'DEATH_EVENT'</span><span class="p">,]</span>
+
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">vars</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span><span class="nb">vars</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'DEATH_EVENT'</span><span class="p">]</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">var</span><span class="p">]</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span> <span class="p">[</span><span class="s1">'DEATH_EVENT'</span><span class="p">,</span><span class="n">var</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># y regression</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">r_y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">y_hat</span>
+
+    <span class="c1"># x regression</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">r_x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x_hat</span>
+
+    <span class="c1"># r_y on r_x:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">LinearRegression</span><span class="p">()</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">r_x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">),</span><span class="n">r_y</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> : </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">coef_</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>age : [0.00901227]
+anaemia : [0.05487855]
+creatinine_phosphokinase : [4.88013782e-05]
+diabetes : [0.01663591]
+ejection_fraction : [-0.01059109]
+high_blood_pressure : [0.06795378]
+platelets : [-7.21083687e-08]
+serum_creatinine : [0.10632186]
+serum_sodium : [-0.01096045]
+sex : [-0.06255923]
+smoking : [0.0134041]
+DEATH_EVENT : [1.]
+</pre>
 </div>
 </div>
 </div>
@@ -8709,7 +8905,8 @@ $$</li>
 <li>This is extremely important!</li>
 <li>Imagine we regress $y$ on two variables $x_1$ and $x_2$ that are very highly correlated with each other and $y$...</li>
 <li>The two variables explain the same variation in the target/response/outcome variable...</li>
-<li>So in MLR, they cancel each other out, explaining the same variation in $y$ in the first stage</li>
+<li>So in MLR, they tend to cancel each other out, explaining the same variation in $y$ in the first stage</li>
+<li>This leads to "mushy" predictions that use lots of great data to provide highly variable and unreliable models</li>
 <li>This is called <strong>multicolinearity</strong>: The tendency of highly correlated variables to cancel one another out, and give the model an unexpected "mushy" and "high variance" quality</li>
 <li>The lesson is that by dropping variables, your model can become a better predictor</li>
 <li>Many of our tools (Principal Components Analysis, Regularization) are designed to reduce the correlation between explanatory variables or pick the best set of explanatory variables</li>
@@ -8725,10 +8922,10 @@ $$</li>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="Interpreting-Coefficients">Interpreting Coefficients<a class="anchor-link" href="#Interpreting-Coefficients">¶</a></h2><ul>
-<li>If $x_k$ goes up by $1\%$, then $\hat{y}$ goes up by $b_k \%$</li>
+<li>The implications of changes in $x_k$ are easy to understand: If $x_k$ goes up by $1$, then $\hat{y}$ goes up by $b_k$ on average, controlling for the other variables in the regression</li>
 <li>If you understand partial regression, you understand that, for the most part, we cannot really interpret these coefficients as <strong>causal estimates</strong>: If we intervene and adjust $x_{ik}$, $\hat{y}_i$ is not necessarily going to move by $b_k$ in expectation</li>
 <li>If, however, we have two cases, $\hat{x}_1$ and $\hat{x}_2$, and the only difference in their values is a 1 unit change in the $k$-th variable, then we would expect the change in their expected outcomes to be $b_k$</li>
-<li>The difference is subtle, but very important: The world generates the data according to complex processes, and we can guess what's going to happen based on the data we have, but intervening in the system</li>
+<li>The difference is subtle, but very important: The world generates the data according to complex processes, and we can guess what's going to happen based on the data we have, but intervening in the system is not something we can understand or learn from these kind of data (we have no credible <strong>identification strategy</strong> for <strong>causal effects</strong>)</li>
 </ul>
 </div>
 </div>
@@ -8741,6 +8938,7 @@ $$</li>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="Model-Selection">Model Selection<a class="anchor-link" href="#Model-Selection">¶</a></h2><ul>
+<li>"What variables go in the model?"</li>
 <li>In $k$-NN, our hyperparameter was $k$, the number of neighbors: The model is always tempted to pick a smaller $k$ and use a more highly variable and overconfident model to make predictions -- in local smoothing, the model wants to increase variability and reduce reliability by taking a very small set of neighbors from which to make predictions. This needs to be disciplined.</li>
 <li>With linear regression, the problem is that using more variables always improves fit on the training data, but can simultaneously reduce performance on the test/validation data. This is typically because multicolinearity results in overfitting.</li>
 </ul>
